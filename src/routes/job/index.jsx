@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { NavBack } from "../../components/navBar";
-import "./index.scss";
+import css from "./index.module.scss";
 import React from "react";
 import { useEffect } from "react";
+import {classNames} from "../../utils/utils";
 
 
 export function useAndroidImg(){
@@ -23,21 +24,19 @@ export function Solider() {
     if(window.Android){
      window.Android.takePhoto()
     }
-    console.log("---  nyf photo");
   }
 
 
   return (
-    <div className="job_box">
+    <div className={css.job_box}>
       <NavBack />
-      <div className="btn_group">
-        <div className="photo btn" onClick={takePhotoss}>
+      <div className={css.btn_group}>
+        <div className={classNames(css.photo,css.btn,'take_photo-nyf')} onClick={takePhotoss}>
           拍照
         </div>
-        <div className="upload btn">上传</div>
-        
+        <div className={classNames(css.btn,css.upload)}>上传</div>
       </div>
-      <img alt="" src={imgData}  className="image"/>
+      <img alt="" src={imgData}  className={css.image}/>
     </div>
   );
 }

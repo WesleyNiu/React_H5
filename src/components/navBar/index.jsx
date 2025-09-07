@@ -1,4 +1,4 @@
-import './index.scss'
+import css from './index.module.scss'
 import React from 'react'
 export function NavBack(){
     const onBack =()=>{
@@ -8,7 +8,7 @@ export function NavBack(){
             console.log(' nyf ---  退出成功 ');
         }
     }
-    return <div className="back">
-        <div className="btn" onClick={onBack}>返回</div>
+    return <div className={css.back}>
+        <div className={css.btn} onClick={onBack}>返回</div>
     </div>
 }

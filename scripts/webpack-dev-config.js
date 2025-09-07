@@ -4,6 +4,8 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const pkg = require("../package.json");
+const {getLocalIdent} = require("./loader/css-loader");
 
 const getStyleLoaders = (preProcessor) => {
   return [
@@ -33,54 +35,72 @@ module.exports = {
   },
   module: {
     rules: [
-      {
-        oneOf: [
-          {
-            // 用来匹配 .css 结尾的文件
-            test: /\.css$/,
-            // use 数组里面 Loader 执行顺序是从右到左
-            use: getStyleLoaders(),
-          },
-          {
-            test: /\.less$/,
-            use: getStyleLoaders("less-loader"),
-          },
-          {
-            test: /\.s[ac]ss$/,
-            use: getStyleLoaders("sass-loader"),
-          },
-          {
-            test: /\.styl$/,
-            use: getStyleLoaders("stylus-loader"),
-          },
-          {
-            test: /\.(png|jpe?g|gif|svg)$/,
-            type: "asset",
-            parser: {
-              dataUrlCondition: {
-                maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
-              },
-            },
-          },
-          {
-            test: /\.(ttf|woff2?)$/,
-            type: "asset/resource",
-          },
-          {
-            test: /\.(jsx|js)$/,
-            include: path.resolve(__dirname, "../src"),
-            loader: "babel-loader",
-            options: {
-              cacheDirectory: true,
-              cacheCompression: false,
-              plugins: [
-                "react-refresh/babel", // 开启js的HMR功能
-              ],
-            },
-          },
-        ],
-      },
-    ],
+        {
+            oneOf: [
+                {
+                    // 用来匹配 .css 结尾的文件
+                    test: /\.css$/,
+                    // use 数组里面 Loader 执行顺序是从右到左
+                    use: getStyleLoaders(),
+                },
+                {
+                    test: /\.less$/,
+                    use: getStyleLoaders("less-loader"),
+                },
+                {
+                    test: /\.module\.s[ac]ss$/,
+                    use: [
+                        'style-loader',
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                modules: {
+                                    auto: true,
+                                    localIdentName: '[local]',
+                                    getLocalIdent: (...arg)=>getLocalIdent(pkg, ...arg),
+                                },
+                            },
+                        },
+                        'sass-loader', // 必须在 css-loader 之后
+                    ],
+                },
+                {
+                    test: /\.s[ac]ss$/,
+                    exclude: /\.module\.scss$/,
+                    use: getStyleLoaders("sass-loader"),
+                },
+                {
+                    test: /\.styl$/,
+                    use: getStyleLoaders("stylus-loader"),
+                },
+                {
+                    test: /\.(png|jpe?g|gif|svg)$/,
+                    type: "asset",
+                    parser: {
+                        dataUrlCondition: {
+                            maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
+                        },
+                    },
+                },
+                {
+                    test: /\.(ttf|woff2?)$/,
+                    type: "asset/resource",
+                },
+                {
+                    test: /\.(jsx|js)$/,
+                    include: path.resolve(__dirname, "../src"),
+                    loader: "babel-loader",
+                    options: {
+                        cacheDirectory: true,
+                        cacheCompression: false,
+                        plugins: [
+                            "react-refresh/babel", // 开启js的HMR功能
+                        ],
+                    },
+                },
+            ],
+        },
+    ]
   },
   plugins: [
     // new ESLintWebpackPlugin({
@@ -129,7 +149,7 @@ module.exports = {
   },
   devServer: {
     open: true,
-    host: "192.168.31.50",
+    // host: "192.168.31.50",
     port: 3000,
     hot: true,
     compress: true,
